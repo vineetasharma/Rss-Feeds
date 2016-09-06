@@ -17,15 +17,12 @@ rssAdapter.addListener('stream', function (data) {
     console.log(data);
 });
 rssAdapter.addListener('metadata', function (data) {
-    console.log('id ====________________________________',data.id, data.metadata.title, '-------description------', Object.keys(data.metadata),'Data----------------------meta----------------------',data.metadata.meta ,'filename====' + data.name);
-});
-rssAdapter.addListener('data', function (data) {
-   // console.log('downloading ' + '====' , typeof data.data,'-----------------%----------', data.name,'-----------------data.id-----------------',data.id,'====================Datat.data-------------------------------');
-    writeStreams[data.id].write(JSON.stringify(data.data));
+    // do something on metadata
 });
 
 rssAdapter.addListener('done', function (data) {
     console.log('----- done -----');
+    writeStreams[data.id].write(JSON.stringify(data.items));
     writeStreams[data.id].end();
 
 });
@@ -35,9 +32,9 @@ rssAdapter.addListener('stop', function () {
     //roll through all write streams and stop them
 });
 
-rssAdapter.addListener('error', function (data) {
+rssAdapter.addListener('error', function (error) {
     console.log('----- Error -----');
-    console.log(data);
+    console.error(error);
 });
 
 rssAdapter.start();

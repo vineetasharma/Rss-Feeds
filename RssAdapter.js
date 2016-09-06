@@ -47,23 +47,18 @@ RssAdapter.prototype.start = function start() {
         "urls": urls,
         "started": Date.now()
     });
-    var options = [];// Optional arguments passed to youtube-dl.
+    var options = [];// Optional arguments passed to feedParser.
     urls.forEach(function (url) {
-        var title;
+        var title, meta, items = [];
         var req = request(url)
-            , feedparser = new FeedParser([options]);
-
-        req.on('error', function (error) {
-            // handle any request errors
-        });
+            , feedparser = new FeedParser(options);
         req.on('response', function (res) {
             var stream = this;
             if (res.statusCode != 200) return this.emit('error', new Error('Bad status code'));
             stream.pipe(feedparser);
         });
-
-        feedparser.on('error', function (error) {
-            console.error('error occurred -----------------------------', error);
+        req.on('error', function (error) {
+            // handle any request errors
         });
         feedparser.on('meta', function (info) {
             title = info && info.title && info.title.split('/').join('');
@@ -72,17 +67,30 @@ RssAdapter.prototype.start = function start() {
                 self.emit('metadata', {"id": title + ".json", "metadata": info, "name": url});
             }
         });
-        feedparser.on('data', function (chunk) {
-            if (title)
-                self.emit('data', {"id": title + ".json", "data": chunk, "name": url});
+        feedparser.on('readable', function () {
+            var stream = this
+                , item;
+            meta = stream.meta; // **NOTE** the "meta" is always available in the context of the feedparser instance
+            while (item = stream.read()) {
+                items.push(item);
+            }
         });
         feedparser.on('end', function () {
             if (title)
                 self.emit('done', {
                     "id": title + ".json",
                     "stopped": Date.now(),
-                    "data": null
+                    "items": items
                 });
+        });
+        feedparser.on('error', function (error) {
+            if (title)
+                self.emit('done', {
+                    "id": title + ".json",
+                    "stopped": Date.now(),
+                    "items": items
+                });
+            console.error('error occurred -----------------------------', error);
         });
     })
 };
