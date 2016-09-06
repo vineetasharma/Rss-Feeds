@@ -1,0 +1,26 @@
+{
+  "name": "rss-feeds",
+  "version": "0.0.1",
+  "description": "rss-feeds",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec",
+    "start": "node index.js",
+    "vow_test": "vows ./test/*.js --spec"
+  },
+  "keywords": [
+    "rss-feeds"
+  ],
+  "author": "vineetasharma18791@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "feedparser": "^1.1.4",
+    "should": "^11.1.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.0.2",
+    "vows": "^0.8.1"
+  }
+}
